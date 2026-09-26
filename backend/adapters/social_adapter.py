@@ -3,39 +3,38 @@ from typing import Dict, Any
 
 class MockSocialAdapter:
     @staticmethod
-    def generate_recruitment_posts(role: str, salary_info: str = "₹8,000 – ₹10,000 / month", criteria: str = "Passionate student / Fresher / Self-taught builder") -> Dict[str, Any]:
-        intern_role = role if "intern" in role.lower() else f"{role} Intern"
-        linkedin_post = f"""🚀 We are hiring a {intern_role} at FounderOS!
+    def generate_recruitment_posts(role: str, salary_info: str = "₹6L - ₹9L / year", criteria: str = "3+ years experience") -> Dict[str, Any]:
+        linkedin_post = f"""🚀 We are hiring a {role} at AgentGrid!
 
-We are an early-stage, fast-moving startup building the autonomous AI executive operating system for founders worldwide.
+We are expanding our core team to build the autonomous AI executive workforce for founders worldwide.
 
 ✨ What you will work on:
-• Building production UI components with React, TypeScript & Tailwind CSS
-• Collaborating directly with the Founder & AI Orchestration pipeline
-• High ownership, rapid shipping cadence, real startup experience
+• Architecting ultra-fast, resilient interfaces with React and TypeScript
+• Working directly with our autonomous AI backend pipeline
+• High ownership, zero bureaucracy, rapid deployment cycles
 
-💰 Stipend: {salary_info} + Certificate & Pre-Placement Offer (PPO) opportunity
-📍 Location: Remote / Flexible
-⚡ Eligibility: {criteria} (GitHub portfolio / personal projects prioritized)
+💰 Compensation: {salary_info} + Generous Founder Equity
+📍 Location: Remote / Hybrid
+⚡ Experience: {criteria}
 
-👉 Interested? DM your GitHub/portfolio or comment below to get fast-tracked!"""
+👉 Interested? Apply directly or DM with your portfolio/GitHub!"""
 
-        telegram_post = f"""🔥 INTERNSHIP ALERT: {intern_role} @ FounderOS
+        telegram_post = f"""🔥 HIRING ALERT: {role} @ AgentGrid
 
-• Role: {intern_role}
-• Stipend: {salary_info} + PPO Potential
+• Role: {role}
+• Compensation: {salary_info} + Equity
 • Stack: React, TypeScript, Tailwind, REST APIs
-• Work Mode: Remote / Flexible (3-6 Months)
+• Work Mode: Remote / Flexible
 
-Apply via DM @FounderOS_Talent with your GitHub profile!"""
+Apply via DM @AgentGrid_Talent or reply to this message."""
 
         return {
-            "role": intern_role,
+            "role": role,
             "salary_info": salary_info,
             "linkedin_post": linkedin_post,
             "telegram_post": telegram_post,
-            "twitter_post": f"We're looking for a hungry {intern_role} to join our early startup team ({salary_info} + PPO). DM your GitHub/projects if you want to build AI systems! 🚀",
-            "recommended_channels": ["LinkedIn Campus & Early Careers", "Telegram Developer Hubs", "X Dev Community", "Internshala / Wellfound"]
+            "twitter_post": f"We just opened a {role} role at @AgentGrid ({salary_info} + equity). DM your GitHub/portfolio if you love building AI-powered systems! RTs appreciated 🚀",
+            "recommended_channels": ["LinkedIn Talent Solutions", "Telegram Dev Hub", "X Tech Community", "Wellfound"]
         }
 
     @staticmethod
@@ -49,7 +48,7 @@ Apply via DM @FounderOS_Talent with your GitHub profile!"""
         }
 
     @staticmethod
-    def publish_telegram(content: str, channel: str = "@FounderOS_Announcements") -> Dict[str, Any]:
+    def publish_telegram(content: str, channel: str = "@AgentGrid_Announcements") -> Dict[str, Any]:
         return {
             "platform": "Telegram",
             "status": "BROADCASTED",

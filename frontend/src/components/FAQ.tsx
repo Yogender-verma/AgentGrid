@@ -4,16 +4,16 @@ import { ChevronDown } from 'lucide-react';
 
 const faqs = [
   {
-    question: "What exactly is Founder OS?",
-    answer: "Founder OS is an AI-powered operating system that acts as your virtual C-suite. You simply input a high-level business goal, and our ecosystem of specialized AI agents (Marketing, Finance, Hiring, etc.) collaborate to break it down, plan, and execute the work autonomously."
+    question: "What exactly is AgentGrid?",
+    answer: "AgentGrid is an AI-powered operating system that acts as your virtual C-suite. You simply input a high-level business goal, and our ecosystem of specialized AI agents (Marketing, Finance, Hiring, etc.) collaborate to break it down, plan, and execute the work autonomously."
   },
   {
     question: "Do I lose control over my business decisions?",
-    answer: "Not at all. Founder OS includes a robust Human-in-the-Loop system. While the agents can execute routine tasks autonomously, any high-stakes decisions, contract approvals, or significant budget allocations are always flagged for your final review and authorization."
+    answer: "Not at all. AgentGrid includes a robust Human-in-the-Loop system. While the agents can execute routine tasks autonomously, any high-stakes decisions, contract approvals, or significant budget allocations are always flagged for your final review and authorization."
   },
   {
     question: "How long does it take to integrate with my existing tools?",
-    answer: "Our platform is designed to be plug-and-play. Founder OS natively integrates with most major CRMs, ad networks, and project management tools in minutes, allowing your AI agents to start working immediately without complex migrations."
+    answer: "Our platform is designed to be plug-and-play. AgentGrid natively integrates with most major CRMs, ad networks, and project management tools in minutes, allowing your AI agents to start working immediately without complex migrations."
   },
   {
     question: "What happens if the AI agents make a mistake?",
@@ -21,7 +21,7 @@ const faqs = [
   },
   {
     question: "Is my company's data safe and private?",
-    answer: "Security is our top priority. All data processed by Founder OS is enterprise-grade encrypted. We use isolated instances for each client, meaning your proprietary business data is never shared or used to train public AI models."
+    answer: "Security is our top priority. All data processed by AgentGrid is enterprise-grade encrypted. We use isolated instances for each client, meaning your proprietary business data is never shared or used to train public AI models."
   }
 ];
 
@@ -46,7 +46,7 @@ export function FAQ() {
           transition={{ delay: 0.1 }}
           className="text-gray-600 dark:text-founder-textMuted transition-colors"
         >
-          Everything you need to know about scaling with Founder OS.
+          Everything you need to know about scaling with AgentGrid.
         </motion.p>
       </div>
 

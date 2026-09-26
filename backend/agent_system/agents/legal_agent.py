@@ -27,7 +27,7 @@ Generate an exhaustive, enforceable legal package. Return ONLY valid JSON with t
   "document_title": "Title of the Legal Document",
   "document_type": "OFFER_LETTER" | "NDA" | "IP_ASSIGNMENT" | "TERMS_OF_SERVICE" | "COMPLIANCE_REVIEW",
   "parties_involved": {{
-    "company": "FounderOS Technologies Inc.",
+    "company": "AgentGrid Technologies Inc.",
     "counterparty": "Candidate / Consultant / Enterprise Client"
   }},
   "key_clauses": [
@@ -52,20 +52,20 @@ Generate an exhaustive, enforceable legal package. Return ONLY valid JSON with t
             "document_title": "Employment Offer & Proprietary Inventions Assignment Agreement",
             "document_type": "OFFER_LETTER",
             "parties_involved": {
-                "company": "FounderOS Inc.",
+                "company": "AgentGrid Inc.",
                 "counterparty": "Designated Candidate / Contractor"
             },
             "key_clauses": [
                 {"clause_name": "1. Position & Duties", "summary": "Performs assigned duties under founder direction on an at-will basis."},
                 {"clause_name": "2. Compensation & Benefits", "summary": "Agreed salary/stipend paid bi-weekly/monthly subject to standard statutory withholdings."},
-                {"clause_name": "3. 100% IP Assignment", "summary": "All intellectual property, source code, designs, and know-how are the exclusive property of FounderOS Inc."},
+                {"clause_name": "3. 100% IP Assignment", "summary": "All intellectual property, source code, designs, and know-how are the exclusive property of AgentGrid Inc."},
                 {"clause_name": "4. Non-Disclosure & Confidentiality", "summary": "Strict indefinite non-disclosure of company proprietary assets and trade secrets."},
                 {"clause_name": "5. Governing Law", "summary": "Governed by applicable state laws with mandatory binding arbitration for disputes."}
             ],
             "full_contract_text_markdown": """# EMPLOYMENT OFFER & IP ASSIGNMENT AGREEMENT
 
 **Date:** March 2026  
-**Company:** FounderOS Inc. ("Company")  
+**Company:** AgentGrid Inc. ("Company")  
 **Employee / Contractor:** [Candidate Name] ("Recipient")  
 
 ### 1. Position and Duties
@@ -91,7 +91,7 @@ Date: ______________________
 
 ____________________________  
 **Founder / CEO Signature**  
-FounderOS Inc.
+AgentGrid Inc.
 """,
             "compliance_checklist": [
                 {"item": "Full 100% IP Assignment clause enforced", "status": "VERIFIED"},

@@ -13,7 +13,7 @@ export function Footer() {
               Request info or schedule a demo
             </h2>
             <p className="text-gray-600 dark:text-founder-textMuted text-lg transition-colors">
-              See how Founder OS can transform your startup scaling.
+              See how AgentGrid can transform your business workflows.
             </p>
           </div>
           <Link to="/contact" className="flex-shrink-0 px-8 py-4 rounded-full bg-founder-primary text-white font-semibold hover:bg-founder-primary/90 transition-colors shadow-lg shadow-founder-primary/25">
@@ -28,10 +28,10 @@ export function Footer() {
           <div className="md:col-span-2">
             <div className="flex items-center gap-2 mb-6 text-gray-900 dark:text-white transition-colors">
               <Hexagon className="w-8 h-8 text-founder-primary" fill="currentColor" fillOpacity={0.2} />
-              <span className="text-2xl font-bold tracking-tight">Founder OS</span>
+              <span className="text-2xl font-bold tracking-tight">AgentGrid</span>
             </div>
             <p className="text-gray-500 dark:text-founder-textMuted text-sm transition-colors">
-              © 2026 Founder OS. All rights reserved.
+              © 2026 AgentGrid. All rights reserved.
             </p>
           </div>
 

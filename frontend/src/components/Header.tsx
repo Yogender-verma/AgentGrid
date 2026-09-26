@@ -31,7 +31,7 @@ export function Header() {
         <div className="w-8 h-8 rounded-lg bg-founder-primary flex items-center justify-center text-white shadow-[0_0_15px_rgba(136,51,255,0.4)]">
           <Hexagon size={20} fill="currentColor" className="text-white" />
         </div>
-        <span className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">Founder OS</span>
+        <span className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">AgentGrid</span>
       </Link>
       
       <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600 dark:text-founder-textMuted">

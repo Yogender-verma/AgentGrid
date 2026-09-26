@@ -6,48 +6,48 @@ class MockCandidateRepository:
     Provides realistic candidate ranking and scoring based on the evaluated role.
     """
     @staticmethod
-    def screen_and_rank_candidates(role: str, criteria: str = "Intern / Fresher", salary_band: str = "₹8,000 – ₹10,000 / month") -> List[Dict[str, Any]]:
+    def screen_and_rank_candidates(role: str, criteria: str = "3+ years", salary_band: str = "₹6L - ₹9L") -> List[Dict[str, Any]]:
         role_lower = role.lower()
-        if any(k in role_lower for k in ["front", "react", "ui", "web", "developer", "engineer", "software", "intern"]):
+        if any(k in role_lower for k in ["front", "react", "ui", "web", "developer", "engineer", "software"]):
             return [
                 {
                     "id": "cand_01",
                     "name": "Rahul Sharma",
                     "match_score": 94,
                     "status": "Interview Recommended",
-                    "experience": "Final Year B.Tech (CS) / Active Open Source Contributor",
-                    "current_company": "Apex Student Dev Club (Tech Lead)",
-                    "core_skills": ["React 18", "TypeScript", "Tailwind CSS", "Next.js", "Zustand"],
-                    "github_summary": "Top 5% open-source contributor; created React components library with 1.8k stars and 15+ live projects",
-                    "expected_salary": "₹10,000 / month",
-                    "notice_period": "Immediate (Available full-time 40h/week)",
-                    "interview_recommendation": "Strong Hire - Exceptional UI component velocity and rapid learning agility."
+                    "experience": "4.5 years",
+                    "current_company": "HyperScale Labs",
+                    "core_skills": ["React 18", "TypeScript", "Tailwind CSS", "Next.js", "Redux/Zustand"],
+                    "github_summary": "Top 5% open-source contributor; created widely used React animation library (2.4k stars)",
+                    "expected_salary": "₹8.5L / year",
+                    "notice_period": "Immediate (15 days)",
+                    "interview_recommendation": "Strong Hire - Outstanding frontend systems design and UI component velocity."
                 },
                 {
                     "id": "cand_02",
                     "name": "Ananya Rao",
                     "match_score": 91,
                     "status": "Interview Recommended",
-                    "experience": "3rd Year B.Tech / Frontend Intern",
-                    "current_company": "Campus Hackathon Winner 2025",
-                    "core_skills": ["React", "TypeScript", "REST APIs", "Vite", "Responsive Design"],
-                    "github_summary": "Built 4 production web dashboards for campus startups with 60fps clean responsive layouts",
-                    "expected_salary": "₹9,000 / month",
-                    "notice_period": "Immediate",
-                    "interview_recommendation": "Strong Hire - Clean coding habits, great attention to detail, highly motivated."
+                    "experience": "3.8 years",
+                    "current_company": "FinTech Matrix",
+                    "core_skills": ["React", "TypeScript", "GraphQL", "WebSockets", "Vite"],
+                    "github_summary": "Architected low-latency trader dashboard with 60fps real-time data streaming",
+                    "expected_salary": "₹9.0L / year",
+                    "notice_period": "30 days",
+                    "interview_recommendation": "Strong Hire - Deep performance optimization and API integration expertise."
                 },
                 {
                     "id": "cand_03",
                     "name": "Arjun Kumar",
-                    "match_score": 78,
+                    "match_score": 73,
                     "status": "Review",
-                    "experience": "Self-Taught Web Developer (6 months project experience)",
-                    "current_company": "Freelance Web Builder",
-                    "core_skills": ["JavaScript", "React", "HTML5/CSS3", "Git"],
-                    "github_summary": "Solid portfolio of interactive landing pages, fast learner",
-                    "expected_salary": "₹8,000 / month",
+                    "experience": "2.5 years",
+                    "current_company": "DigitalCraft Agency",
+                    "core_skills": ["JavaScript", "React", "HTML/CSS", "Bootstrap"],
+                    "github_summary": "Solid portfolio of client landing pages and e-commerce frontends",
+                    "expected_salary": "₹6.5L / year",
                     "notice_period": "Immediate",
-                    "interview_recommendation": "Potential Hire - Good UI styling foundation, ready for mentor-guided tasks."
+                    "interview_recommendation": "Potential Hire - Good styling skills, requires mentorship on complex state management."
                 }
             ]
         elif any(k in role_lower for k in ["market", "growth", "lead"]):

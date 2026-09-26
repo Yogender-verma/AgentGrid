@@ -23,7 +23,7 @@ export function Hero() {
         transition={{ duration: 0.5, delay: 0.1 }}
         className="text-5xl md:text-7xl font-extrabold tracking-tight text-gray-900 dark:text-white max-w-4xl leading-tight mb-6"
       >
-        The AI Operating System <br /> for Founders
+        The AI Workforce <br /> for Business Execution
       </motion.h1>
       
       <motion.p 

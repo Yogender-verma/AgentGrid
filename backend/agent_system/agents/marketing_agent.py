@@ -86,10 +86,10 @@ Generate a comprehensive marketing launch kit. Return ONLY valid JSON with this 
                 "subject_lines": [
                     "🚀 Meet your new autonomous executive team",
                     "How to scale your startup without the operational chaos",
-                    "FounderOS 5-Agent Architecture is live"
+                    "AgentGrid 5-Agent Architecture is live"
                 ],
                 "preview_text": "Automate hiring, marketing, finance, and legal in one unified dashboard.",
-                "body_markdown": "Hey Founder,\n\nBuilding a high-growth company moves fast, but operational bottlenecks can stall momentum.\n\nWe built FounderOS to automate your most critical company functions:\n- **CEO Orchestrator:** Dynamic multi-agent execution\n- **Hiring & Talent:** End-to-end recruitment pipelines\n- **Marketing & Growth:** Multi-channel GTM copy\n- **Financial Intelligence:** Runway & burn rate calculations\n- **Legal Compliance:** Instant offer letters and agreements\n\nReady to see it in action?\n\n[Launch Your First Autonomous Task Now]\n\nBest,\nThe FounderOS Team"
+                "body_markdown": "Hey Founder,\n\nBuilding a high-growth company moves fast, but operational bottlenecks can stall momentum.\n\nWe built AgentGrid to automate your most critical company functions:\n- **CEO Orchestrator:** Dynamic multi-agent execution\n- **Hiring & Talent:** End-to-end recruitment pipelines\n- **Marketing & Growth:** Multi-channel GTM copy\n- **Financial Intelligence:** Runway & burn rate calculations\n- **Legal Compliance:** Instant offer letters and agreements\n\nReady to see it in action?\n\n[Launch Your First Autonomous Task Now]\n\nBest,\nThe AgentGrid Team"
             },
             "campaign_kpis": [
                 {"channel": "LinkedIn", "kpi": "Post Impressions", "target": "15,000+"},

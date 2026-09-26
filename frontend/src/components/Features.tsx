@@ -44,7 +44,7 @@ export function Features() {
           viewport={{ once: true }}
           className="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4 transition-colors"
         >
-          Everything a Founder Needs
+          Everything Your Business Needs
         </motion.h2>
         <motion.p 
           initial={{ opacity: 0, y: 20 }}
@@ -53,7 +53,7 @@ export function Features() {
           transition={{ delay: 0.1 }}
           className="text-gray-600 dark:text-founder-textMuted max-w-2xl mx-auto transition-colors"
         >
-          Everything you need to launch and scale your startup on autopilot.
+          Everything you need to launch and scale your business on autopilot.
         </motion.p>
       </div>
 

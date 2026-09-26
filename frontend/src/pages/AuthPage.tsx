@@ -246,7 +246,7 @@ export function AuthPage() {
             {isLogin ? 'Welcome Back' : 'Create Account'}
           </h2>
           <p className="text-gray-500 dark:text-founder-textMuted mt-2 text-center transition-colors">
-            {isLogin ? 'Log in to your Founder OS workspace.' : 'Start automating your startup today.'}
+            {isLogin ? 'Log in to your AgentGrid workspace.' : 'Start automating your startup today.'}
           </p>
         </div>
 
