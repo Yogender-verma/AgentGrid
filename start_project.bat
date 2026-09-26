@@ -1,5 +1,5 @@
 @echo off
-title FounderOS Server
+title AgentGrid Server
 cd /d %~dp0backend
 
 :: Open the browser directly to the app in 2 seconds
