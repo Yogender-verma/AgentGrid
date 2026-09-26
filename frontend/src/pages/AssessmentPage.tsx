@@ -235,7 +235,7 @@ export function AssessmentPage() {
           <AlertCircle className="mx-auto text-amber-500" size={40} />
           <h2 className="text-xl font-bold">Assessment Not Found</h2>
           <p className="text-xs text-gray-400">The requested interview assessment session may have expired or is invalid.</p>
-          <button onClick={() => navigate('/dashboard/hiring')} className="px-5 py-2.5 bg-[#8B5CF6] text-white rounded-xl text-xs font-bold">
+          <button onClick={() => navigate('/dashboard/hiring-agent')} className="px-5 py-2.5 bg-[#8B5CF6] text-white rounded-xl text-xs font-bold">
             Return to Hiring Dashboard
           </button>
         </div>

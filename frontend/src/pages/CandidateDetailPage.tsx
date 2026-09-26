@@ -59,11 +59,9 @@ export function CandidateDetailPage() {
           founder_decision: 'PENDING'
         }
       });
-    } fontComplete();
-  };
-
-  const fontComplete = () => {
-    setLoading(false);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleFounderDecision = async (decision: string) => {
@@ -115,7 +113,7 @@ export function CandidateDetailPage() {
       <div className="min-h-screen bg-gray-50 dark:bg-[#0B0813] text-gray-900 dark:text-white flex items-center justify-center p-6">
         <div className="text-center space-y-3">
           <p className="text-lg font-bold">Candidate record not found.</p>
-          <button onClick={() => navigate('/dashboard/hiring')} className="px-4 py-2 bg-[#8B5CF6] text-white rounded-xl text-xs">
+          <button onClick={() => navigate('/dashboard/hiring-agent')} className="px-4 py-2 bg-[#8B5CF6] text-white rounded-xl text-xs">
             Back to Hiring Dashboard
           </button>
         </div>
@@ -123,16 +121,16 @@ export function CandidateDetailPage() {
     );
   }
 
-  const evalData = candidate.evaluation || {};
-  const mcqRound = candidate.assessment_rounds?.find((r: any) => r.round_type === 'MCQ');
-  const codingRound = candidate.assessment_rounds?.find((r: any) => r.round_type === 'CODING');
+  const evalData = candidate?.evaluation || {};
+  const mcqRound = candidate?.assessment_rounds?.find((r: any) => r.round_type === 'MCQ');
+  const codingRound = candidate?.assessment_rounds?.find((r: any) => r.round_type === 'CODING');
 
   const steps = [
-    { title: 'Resume Screen', status: candidate.resume_match_score >= 60 ? 'COMPLETED' : 'FAILED' },
+    { title: 'Resume Screen', status: (candidate?.resume_match_score ?? 0) >= 60 ? 'COMPLETED' : 'FAILED' },
     { title: 'Round 1 (MCQ)', status: mcqRound?.status || 'PENDING' },
     { title: 'Round 2 (Coding)', status: codingRound?.status || 'PENDING' },
-    { title: 'AI Evaluation', status: evalData.overall_score ? 'COMPLETED' : 'PENDING' },
-    { title: 'Founder Decision', status: evalData.founder_decision !== 'PENDING' ? 'COMPLETED' : 'AWAITING' }
+    { title: 'AI Evaluation', status: (evalData.overall_score !== undefined && evalData.overall_score !== null) ? 'COMPLETED' : 'PENDING' },
+    { title: 'Founder Decision', status: (evalData.founder_decision && evalData.founder_decision !== 'PENDING') ? 'COMPLETED' : 'AWAITING' }
   ];
 
   return (
@@ -149,7 +147,7 @@ export function CandidateDetailPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-gray-200 dark:border-[#251B38]">
         <div className="flex items-center gap-4">
           <button
-            onClick={() => navigate('/dashboard/hiring')}
+            onClick={() => navigate('/dashboard/hiring-agent')}
             className="p-2.5 rounded-xl border border-gray-200 dark:border-[#251B38] text-gray-400 hover:text-white transition-colors"
           >
             <ChevronLeft size={20} />
@@ -246,7 +244,7 @@ export function CandidateDetailPage() {
       </div>
 
       {/* AI Candidate Evaluation Card */}
-      {evalData.overall_score && (
+      {Boolean(evalData && (evalData.overall_score !== undefined && evalData.overall_score !== null)) && (
         <div className="bg-white dark:bg-[#120E1E] border border-gray-200 dark:border-[#251B38] rounded-3xl p-8 space-y-6 shadow-xl">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -265,7 +263,7 @@ export function CandidateDetailPage() {
               evalData.recommendation === 'RECONSIDER' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40' :
               'bg-red-500/20 text-red-400 border border-red-500/40'
             }`}>
-              {evalData.recommendation}
+              {evalData.recommendation || 'REVIEW'}
             </span>
           </div>
 
@@ -275,7 +273,7 @@ export function CandidateDetailPage() {
                 <CheckCircle2 size={16} /> Key Strengths
               </h4>
               <ul className="space-y-1.5 text-xs text-gray-300">
-                {(evalData.strengths || []).map((s: string, idx: number) => (
+                {(Array.isArray(evalData.strengths) ? evalData.strengths : []).map((s: string, idx: number) => (
                   <li key={idx} className="flex items-start gap-2">
                     <span className="text-emerald-400 font-bold">•</span>
                     <span>{s}</span>
@@ -289,7 +287,7 @@ export function CandidateDetailPage() {
                 <AlertTriangle size={16} /> Potential Concerns
               </h4>
               <ul className="space-y-1.5 text-xs text-gray-300">
-                {(evalData.concerns || []).map((c: string, idx: number) => (
+                {(Array.isArray(evalData.concerns) ? evalData.concerns : []).map((c: string, idx: number) => (
                   <li key={idx} className="flex items-start gap-2">
                     <span className="text-amber-400 font-bold">•</span>
                     <span>{c}</span>

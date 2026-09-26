@@ -42,13 +42,14 @@ import {
   Share2,
   ExternalLink
 } from 'lucide-react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useTheme } from '../components/ThemeProvider';
 import { getApiUrl } from '../config';
 
 export function DashboardPage() {
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
+  const location = useLocation();
   const { tabId } = useParams();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [userName, setUserName] = useState('Founder');
@@ -89,7 +90,7 @@ export function DashboardPage() {
   // Founder Profile Settings state
   const [profileForm, setProfileForm] = useState({
     name: 'Founder CEO',
-    email: 'founder@founderos.io',
+    email: 'user@agentgrid.io',
     linkedin: 'https://linkedin.com/in/founder',
     twitter: '',
     telegram: '',
@@ -135,6 +136,8 @@ export function DashboardPage() {
   const [hiringJobs, setHiringJobs] = useState<any[]>([]);
   const [selectedJobId, setSelectedJobId] = useState<number | null>(null);
   const [selectedJobDetail, setSelectedJobDetail] = useState<any | null>(null);
+  const [isLoadingHiringData, setIsLoadingHiringData] = useState<boolean>(true);
+  const [hiringError, setHiringError] = useState<string | null>(null);
   const [isCreatingJobModalOpen, setIsCreatingJobModalOpen] = useState(false);
   const [isAddCandidateModalOpen, setIsAddCandidateModalOpen] = useState(false);
   const [isCreatingJob, setIsCreatingJob] = useState(false);
@@ -156,20 +159,31 @@ export function DashboardPage() {
   });
 
   const fetchHiringJobs = async () => {
+    setIsLoadingHiringData(true);
+    setHiringError(null);
     try {
       const apiUrl = getApiUrl();
       const res = await fetch(`${apiUrl}/api/hiring/jobs`);
       if (res.ok) {
         const data = await res.json();
         setHiringJobs(data);
-        if (data.length > 0 && !selectedJobId) {
-          const firstId = data[0].id;
-          setSelectedJobId(firstId);
-          fetchJobDetail(firstId);
+        if (data.length > 0) {
+          const targetId = (selectedJobId && data.some((j: any) => j.id === selectedJobId)) 
+            ? selectedJobId 
+            : data[0].id;
+          setSelectedJobId(targetId);
+          await fetchJobDetail(targetId);
+        } else {
+          setSelectedJobDetail(null);
         }
+      } else {
+        setHiringError('Failed to load hiring jobs from server.');
       }
     } catch (err) {
       console.error('Failed to fetch hiring jobs:', err);
+      setHiringError('Unable to connect to hiring service.');
+    } finally {
+      setIsLoadingHiringData(false);
     }
   };
 
@@ -346,10 +360,10 @@ export function DashboardPage() {
         console.error(e);
       }
     }
-  }, [navigate]);
+  }, [location.pathname]);
 
-  // 1. Task Creation (Created as DRAFT, assigned to agents only when user clicks Delegate to CEO)
-  const handleTaskSubmit = async (e?: React.FormEvent, customPrompt?: string, autoDelegate: boolean = false) => {
+  // 1. Task Creation & CEO Workflow Delegation
+  const handleTaskSubmit = async (e?: React.FormEvent, customPrompt?: string, autoDelegate: boolean = true) => {
     if (e) e.preventDefault();
     const promptToSubmit = customPrompt || taskInput;
     if (!promptToSubmit.trim() || isAnalyzing) return;
@@ -378,12 +392,13 @@ export function DashboardPage() {
       
       setTasksList(prev => [createdTask, ...prev.filter(t => t.id !== createdTask.id)]);
       setSelectedTaskId(createdTask.id);
-      setActionSuccessMessage(`✓ Task created in Tasks section. Click 'Delegate to CEO' to assign to agents.`);
-      setTimeout(() => setActionSuccessMessage(null), 4000);
-      await fetchDashboardData();
-
+      
       if (autoDelegate) {
         await handleDelegateToCEO(createdTask.id);
+      } else {
+        setActionSuccessMessage(`✓ Task created in Tasks section.`);
+        setTimeout(() => setActionSuccessMessage(null), 4000);
+        await fetchDashboardData();
       }
     } catch (err) {
       console.error(err);
@@ -392,13 +407,14 @@ export function DashboardPage() {
     }
   };
 
-  // 1b. Explicit Delegate to CEO Agent
+  // 1b. Explicit Delegate to CEO Agent Workflow Analysis
   const handleDelegateToCEO = async (taskId: number) => {
     const token = localStorage.getItem('token');
     const apiUrl = getApiUrl();
 
     setIsAnalyzing(true);
-    setActiveTab('CEO Agent');
+    setSelectedTaskId(taskId);
+    setActiveTab('Tasks');
     try {
       const res = await fetch(`${apiUrl}/api/tasks/${taskId}/analyze`, {
         method: 'POST',
@@ -714,14 +730,13 @@ export function DashboardPage() {
     },
     { name: 'Approvals', icon: <CheckSquare size={18} /> },
     { name: 'Executions', icon: <Play size={18} /> },
-    { name: 'Settings', icon: <Settings size={18} /> },
   ];
 
   const allNames = sidebarItems.reduce((acc: string[], item: any) => {
     if (item.name !== 'Agents') acc.push(item.name);
     if (item.subItems) item.subItems.forEach((sub: any) => acc.push(sub.name));
     return acc;
-  }, []);
+  }, ['Settings']);
 
   const searchablePages = [
     { name: 'Dashboard', category: 'Overview', description: 'Real-time metrics, active workflows & quick directives', tab: 'Dashboard', icon: LayoutDashboard },
@@ -736,8 +751,24 @@ export function DashboardPage() {
     { name: 'Settings', category: 'Settings', description: 'Founder profile & system configuration', tab: 'Settings', icon: Settings },
   ];
 
-  const activeTabMatch = tabId ? allNames.find(n => n.toLowerCase().replace(/\s+/g, '-') === tabId) : undefined;
-  const activeTab = activeTabMatch || 'Dashboard';
+  const getResolvedActiveTab = () => {
+    if (tabId) {
+      const normTabId = tabId.toLowerCase().replace(/\s+/g, '-');
+      if (normTabId === 'hiring' || normTabId === 'hiring-agent') return 'Hiring Agent';
+      if (normTabId === 'ceo' || normTabId === 'ceo-agent') return 'CEO Agent';
+      if (normTabId === 'marketing' || normTabId === 'marketing-agent') return 'Marketing Agent';
+      if (normTabId === 'finance' || normTabId === 'finance-agent') return 'Finance Agent';
+      if (normTabId === 'legal' || normTabId === 'legal-agent') return 'Legal Agent';
+      const found = allNames.find(n => n.toLowerCase().replace(/\s+/g, '-') === normTabId);
+      if (found) return found;
+    }
+    if (location.pathname.startsWith('/hiring')) {
+      return 'Hiring Agent';
+    }
+    return 'Dashboard';
+  };
+
+  const activeTab = getResolvedActiveTab();
   
   const setActiveTab = (tabName: string) => {
     navigate(`/dashboard/${tabName.toLowerCase().replace(/\s+/g, '-')}`);
@@ -813,7 +844,7 @@ export function DashboardPage() {
               <Hexagon size={24} fill="currentColor" />
             </div>
             <div>
-              <h1 className="text-base font-bold tracking-tight">Founder OS</h1>
+              <h1 className="text-base font-bold tracking-tight">AgentGrid</h1>
               <p className="text-[10px] text-gray-500 dark:text-founder-textMuted uppercase font-semibold tracking-wider">AI workforce</p>
             </div>
           </div>
@@ -1170,7 +1201,7 @@ export function DashboardPage() {
                   <button
                     type="submit"
                     disabled={isAnalyzing || !taskInput.trim()}
-                    className="px-7 py-3.5 bg-[#8B5CF6] hover:bg-[#7C3AED] disabled:bg-gray-300 disabled:dark:bg-[#1C162E] text-white font-bold rounded-xl text-sm flex items-center gap-2 transition-all shadow-md shadow-[#8B5CF6]/20 shrink-0"
+                    className="px-7 py-3.5 bg-[#8B5CF6] hover:bg-[#7C3AED] disabled:bg-[#8B5CF6]/60 text-white font-bold rounded-xl text-sm flex items-center gap-2 transition-all shadow-md shadow-[#8B5CF6]/20 shrink-0 cursor-pointer disabled:cursor-not-allowed"
                   >
                     {isAnalyzing ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
                     <span>{isAnalyzing ? "Analyzing..." : "ENTER"}</span>
@@ -1223,6 +1254,84 @@ export function DashboardPage() {
                     <h3 className="text-3xl font-extrabold tracking-tight mt-3">{metric.value}</h3>
                   </div>
                 ))}
+              </div>
+
+              {/* System-Level AgentGrid Workforce Coordination Graph */}
+              <div className="bg-white dark:bg-[#120E1E] border border-gray-200 dark:border-[#251B38] rounded-2xl p-6 shadow-sm overflow-x-auto">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <span className="text-[10px] font-bold text-gray-500 dark:text-founder-textMuted uppercase tracking-wider">SYSTEM ARCHITECTURE</span>
+                    <h3 className="text-xl font-bold tracking-tight text-gray-900 dark:text-white mt-0.5">AgentGrid Workforce</h3>
+                  </div>
+                  <span className="text-xs text-gray-400 font-medium">CEO Orchestrator & Departmental Agent Topology</span>
+                </div>
+
+                <div className="flex justify-center relative">
+                  <div className="bg-white dark:bg-[#1C162E] border-2 border-founder-primary rounded-2xl p-4 flex items-center gap-3.5 w-64 z-10 shadow-lg shadow-founder-primary/10">
+                    <div className="w-10 h-10 rounded-xl bg-founder-primary/20 text-founder-primary flex items-center justify-center font-bold">
+                      <Briefcase size={20} />
+                    </div>
+                    <div>
+                      <p className="font-bold text-sm text-gray-900 dark:text-white">CEO Agent</p>
+                      <p className="text-[10px] text-emerald-500 font-semibold">Central Orchestrator</p>
+                    </div>
+                  </div>
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 w-[2px] h-6 bg-founder-primary/50"></div>
+                </div>
+
+                <div className="relative mt-6 px-4 min-w-[700px]">
+                  <div className="absolute top-0 left-[12.5%] right-[12.5%] h-[2px] bg-founder-primary/50"></div>
+                  <div className="grid grid-cols-4 gap-4 pt-6">
+                    {(currentSelectedTask?.delegations || [
+                      { agent: 'Finance', task_description: 'Models runway, burn rates, CAC budgets & stipend caps.', status: 'READY' },
+                      { agent: 'Marketing', task_description: 'Creates recruitment copy, GTM strategies & social broadcasts.', status: 'READY' },
+                      { agent: 'Hiring', task_description: 'Sources candidates, screens resumes & conducts technical assessments.', status: 'READY' },
+                      { agent: 'Legal', task_description: 'Drafts offer letters, NDAs, IP assignments & compliance covenants.', status: 'READY' }
+                    ]).map((del: any, idx: number) => {
+                      const config = getAgentConfig(del.agent);
+                      const Icon = config.icon;
+                      return (
+                        <div key={idx} className="relative flex flex-col items-center">
+                          <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-[2px] h-6" style={{ backgroundColor: config.fill + '80' }}></div>
+                          
+                          <div 
+                            onClick={() => {
+                              if (del.id) {
+                                setActiveWorkspaceDelegation(del);
+                              } else {
+                                const agentTab = del.agent.endsWith('Agent') ? del.agent : `${del.agent} Agent`;
+                                setActiveTab(agentTab);
+                              }
+                            }}
+                            className="w-full p-4 rounded-2xl bg-white dark:bg-[#120E1E] border hover:border-[#8B5CF6] cursor-pointer transition-all shadow-sm flex flex-col justify-between min-h-[140px]"
+                            style={{ borderColor: config.fill + '50' }}
+                          >
+                            <div className="flex items-center gap-2.5 mb-2">
+                              <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${config.bg} ${config.color}`}>
+                                <Icon size={14} />
+                              </div>
+                              <span className="font-bold text-xs text-gray-900 dark:text-white">{del.agent} Agent</span>
+                            </div>
+                            <p className="text-[11px] text-gray-500 line-clamp-2 leading-snug">{del.task_description}</p>
+                            <div className="mt-3 pt-2 border-t border-gray-100 dark:border-[#251B38]/60 flex items-center justify-between">
+                                {getStatusBadge(del.status)}
+                                <button 
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    const agentTab = del.agent.endsWith('Agent') ? del.agent : `${del.agent} Agent`;
+                                    setActiveTab(agentTab);
+                                  }}
+                                  className="text-[11px] font-bold text-white bg-[#8B5CF6] hover:bg-[#7C3AED] px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1 shadow-sm cursor-pointer"
+                                >
+                                  View Task &rarr;
+                                </button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
 
               {/* Active Tasks & Real-time Execution Grid */}
@@ -1394,7 +1503,7 @@ export function DashboardPage() {
                   <button
                     type="submit"
                     disabled={isAnalyzing || !taskInput.trim()}
-                    className="px-6 py-3 bg-[#8B5CF6] hover:bg-[#7C3AED] disabled:bg-gray-300 text-white font-bold rounded-xl text-sm flex items-center gap-2 shadow-md shadow-[#8B5CF6]/20 shrink-0"
+                    className="px-6 py-3 bg-[#8B5CF6] hover:bg-[#7C3AED] disabled:bg-[#8B5CF6]/60 text-white font-bold rounded-xl text-sm flex items-center gap-2 shadow-md shadow-[#8B5CF6]/20 shrink-0 cursor-pointer disabled:cursor-not-allowed"
                   >
                     {isAnalyzing ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
                     <span>{isAnalyzing ? "Analyzing..." : "Delegate to CEO"}</span>
@@ -1487,7 +1596,7 @@ export function DashboardPage() {
                           <button
                             onClick={() => handleDelegateToCEO(currentSelectedTask.id)}
                             disabled={isAnalyzing}
-                            className="px-6 py-3 bg-[#8B5CF6] hover:bg-[#7C3AED] disabled:bg-gray-300 text-white font-extrabold rounded-xl text-sm flex items-center gap-2 shadow-lg shadow-[#8B5CF6]/25 transition-all shrink-0 cursor-pointer"
+                            className="px-6 py-3 bg-[#8B5CF6] hover:bg-[#7C3AED] disabled:bg-[#8B5CF6]/60 text-white font-extrabold rounded-xl text-sm flex items-center gap-2 shadow-lg shadow-[#8B5CF6]/25 transition-all shrink-0 cursor-pointer disabled:cursor-not-allowed"
                           >
                             {isAnalyzing && selectedTaskId === currentSelectedTask.id ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
                             <span>{isAnalyzing && selectedTaskId === currentSelectedTask.id ? "Analyzing..." : "Delegate to CEO Agent"}</span>
@@ -1672,68 +1781,6 @@ export function DashboardPage() {
                           </div>
                           <div className="w-full h-3 bg-gray-100 dark:bg-[#1C162E] rounded-full overflow-hidden border border-gray-200 dark:border-[#251B38]">
                             <div className="h-full bg-[#00DF89] rounded-full transition-all duration-500" style={{ width: `${currentSelectedTask.progress || 0}%` }}></div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* CEO Visual Dependency Graph */}
-                      <div className="bg-white dark:bg-[#120E1E] border border-gray-200 dark:border-[#251B38] rounded-2xl p-6 shadow-sm overflow-x-auto">
-                        <h3 className="text-sm font-bold text-center text-[#8B5CF6] uppercase tracking-wider mb-6">
-                          CEO Agent Central Coordination Graph
-                        </h3>
-
-                        <div className="flex justify-center relative">
-                          <div className="bg-white dark:bg-[#1C162E] border-2 border-founder-primary rounded-2xl p-4 flex items-center gap-3.5 w-64 z-10 shadow-lg shadow-founder-primary/10">
-                            <div className="w-10 h-10 rounded-xl bg-founder-primary/20 text-founder-primary flex items-center justify-center font-bold">
-                              <Briefcase size={20} />
-                            </div>
-                            <div>
-                              <p className="font-bold text-sm text-gray-900 dark:text-white">CEO Agent</p>
-                              <p className="text-[10px] text-emerald-500 font-semibold">Central Orchestrator</p>
-                            </div>
-                          </div>
-                          <div className="absolute top-full left-1/2 -translate-x-1/2 w-[2px] h-6 bg-founder-primary/50"></div>
-                        </div>
-
-                        <div className="relative mt-6 px-4 min-w-[700px]">
-                          <div className="absolute top-0 left-[12.5%] right-[12.5%] h-[2px] bg-founder-primary/50"></div>
-                          <div className="grid grid-cols-4 gap-4 pt-6">
-                            {delegations.map((del: any, idx: number) => {
-                              const config = getAgentConfig(del.agent);
-                              const Icon = config.icon;
-                              return (
-                                <div key={idx} className="relative flex flex-col items-center">
-                                  <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-[2px] h-6" style={{ backgroundColor: config.fill + '80' }}></div>
-                                  
-                                  <div 
-                                    onClick={() => setActiveWorkspaceDelegation(del)}
-                                    className="w-full p-4 rounded-2xl bg-white dark:bg-[#120E1E] border hover:border-[#8B5CF6] cursor-pointer transition-all shadow-sm flex flex-col justify-between min-h-[140px]"
-                                    style={{ borderColor: config.fill + '50' }}
-                                  >
-                                    <div className="flex items-center gap-2.5 mb-2">
-                                      <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${config.bg} ${config.color}`}>
-                                        <Icon size={14} />
-                                      </div>
-                                      <span className="font-bold text-xs text-gray-900 dark:text-white">{del.agent} Agent</span>
-                                    </div>
-                                    <p className="text-[11px] text-gray-500 line-clamp-2 leading-snug">{del.task_description}</p>
-                                    <div className="mt-3 pt-2 border-t border-gray-100 dark:border-[#251B38]/60 flex items-center justify-between">
-                                        {getStatusBadge(del.status)}
-                                        <button 
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            const agentTab = del.agent.endsWith('Agent') ? del.agent : `${del.agent} Agent`;
-                                            setActiveTab(agentTab);
-                                          }}
-                                          className="text-[11px] font-bold text-white bg-[#8B5CF6] hover:bg-[#7C3AED] px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1 shadow-sm cursor-pointer"
-                                        >
-                                          View Task &rarr;
-                                        </button>
-                                    </div>
-                                  </div>
-                                </div>
-                              );
-                            })}
                           </div>
                         </div>
                       </div>
@@ -2266,7 +2313,7 @@ export function DashboardPage() {
                           type="email"
                           value={profileForm.email}
                           onChange={e => setProfileForm({ ...profileForm, email: e.target.value })}
-                          placeholder="founder@founderos.io"
+                          placeholder="user@agentgrid.io"
                           className="w-full px-4 py-3 bg-gray-50 dark:bg-[#1C162E] border border-gray-200 dark:border-[#2D234A] rounded-xl text-gray-900 dark:text-white outline-none focus:border-[#8B5CF6] transition-colors"
                           required
                         />
@@ -2433,8 +2480,51 @@ export function DashboardPage() {
                 {/* HIRING PIPELINE & JOBS PANEL */}
                 {agentShortName === 'Hiring' && (
                   <div className="space-y-6">
+                    {/* Loading State */}
+                    {isLoadingHiringData && !selectedJobDetail && (
+                      <div className="p-12 border border-dashed border-gray-200 dark:border-[#251B38] rounded-2xl text-center bg-white dark:bg-[#120E1E] space-y-3">
+                        <Loader2 size={36} className="mx-auto text-[#8B5CF6] animate-spin" />
+                        <h3 className="text-base font-bold text-gray-900 dark:text-white">Loading Hiring Requisitions & Talent Pipeline...</h3>
+                        <p className="text-xs text-gray-400">Fetching active job requisitions and candidate assessments.</p>
+                      </div>
+                    )}
+
+                    {/* Error State */}
+                    {!isLoadingHiringData && hiringError && (
+                      <div className="p-8 border border-red-500/30 bg-red-500/10 rounded-2xl text-center space-y-3">
+                        <AlertTriangle size={32} className="mx-auto text-red-500" />
+                        <h3 className="text-base font-bold text-gray-900 dark:text-white">Hiring Data Connection Error</h3>
+                        <p className="text-xs text-gray-400">{hiringError}</p>
+                        <button
+                          onClick={() => fetchHiringJobs()}
+                          className="px-5 py-2 bg-[#8B5CF6] hover:bg-[#7C3AED] text-white text-xs font-bold rounded-xl transition-colors inline-flex items-center gap-1.5 cursor-pointer"
+                        >
+                          <RefreshCw size={14} /> Retry Loading
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Empty State (No Jobs Created Yet) */}
+                    {!isLoadingHiringData && !hiringError && hiringJobs.length === 0 && (
+                      <div className="p-12 border border-dashed border-gray-200 dark:border-[#251B38] rounded-2xl text-center bg-white dark:bg-[#120E1E] space-y-4">
+                        <Users size={40} className="mx-auto text-gray-400 opacity-60" />
+                        <div>
+                          <h3 className="text-lg font-bold text-gray-900 dark:text-white">No Hiring Requisitions Created Yet</h3>
+                          <p className="text-xs text-gray-500 max-w-md mx-auto mt-1">
+                            Create your first job requisition to automatically generate 20 MCQ assessment questions, Python coding challenges, and candidate screening pipelines.
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => setIsCreatingJobModalOpen(true)}
+                          className="px-6 py-3 bg-[#8B5CF6] hover:bg-[#7C3AED] text-white text-xs font-bold rounded-xl transition-all shadow-md inline-flex items-center gap-2 cursor-pointer"
+                        >
+                          <Sparkles size={16} /> Create First Job Requisition
+                        </button>
+                      </div>
+                    )}
+
                     {/* Active Job Requisitions Tabs */}
-                    {hiringJobs.length > 0 && (
+                    {!isLoadingHiringData && hiringJobs.length > 0 && (
                       <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-thin">
                         <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider shrink-0">Hiring Requisitions ({hiringJobs.length}):</span>
                         {hiringJobs.map((j: any) => (
@@ -2457,7 +2547,7 @@ export function DashboardPage() {
                     )}
 
                     {/* Selected Job Detail Card */}
-                    {selectedJobDetail && (
+                    {!isLoadingHiringData && selectedJobDetail && (
                       <div className="bg-white dark:bg-[#120E1E] border border-gray-200 dark:border-[#251B38] rounded-2xl p-6 space-y-4 shadow-sm">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-gray-100 dark:border-[#251B38]/60">
                           <div>
@@ -2532,34 +2622,36 @@ export function DashboardPage() {
                   </div>
                 )}
 
-                {!del && agentShortName !== 'Hiring' ? (
-                  <div className="p-12 border border-dashed border-gray-200 dark:border-[#251B38] rounded-2xl text-center bg-white dark:bg-[#120E1E] space-y-3">
-                    <Bot size={40} className="mx-auto text-gray-400 opacity-60" />
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">No Active Tasks Assigned to {agentShortName} Agent</h3>
-                    <p className="text-xs text-gray-500 max-w-md mx-auto">
-                      In the current directive, {agentShortName} Agent is either not required or has not yet been delegated work.
-                    </p>
-                    <button 
-                      onClick={() => setActiveTab('CEO Agent')}
-                      className="px-5 py-2.5 bg-[#8B5CF6] hover:bg-[#7C3AED] text-white font-bold rounded-xl text-xs transition-colors"
-                    >
-                      Open CEO Directives
-                    </button>
-                  </div>
+                {!del ? (
+                  agentShortName !== 'Hiring' ? (
+                    <div className="p-12 border border-dashed border-gray-200 dark:border-[#251B38] rounded-2xl text-center bg-white dark:bg-[#120E1E] space-y-3">
+                      <Bot size={40} className="mx-auto text-gray-400 opacity-60" />
+                      <h3 className="text-lg font-bold text-gray-900 dark:text-white">No Active Tasks Assigned to {agentShortName} Agent</h3>
+                      <p className="text-xs text-gray-500 max-w-md mx-auto">
+                        In the current directive, {agentShortName} Agent is either not required or has not yet been delegated work.
+                      </p>
+                      <button 
+                        onClick={() => setActiveTab('CEO Agent')}
+                        className="px-5 py-2.5 bg-[#8B5CF6] hover:bg-[#7C3AED] text-white font-bold rounded-xl text-xs transition-colors"
+                      >
+                        Open CEO Directives
+                      </button>
+                    </div>
+                  ) : null
                 ) : (
                   <div className="bg-white dark:bg-[#120E1E] border border-gray-200 dark:border-[#251B38] rounded-3xl p-6 sm:p-8 space-y-6 shadow-sm">
                     {/* Directive Context Banner */}
                     <div className="p-4 rounded-2xl bg-gray-50 dark:bg-[#1C162E] border border-gray-200 dark:border-[#2D234A] space-y-1.5">
                       <div className="flex items-center justify-between">
                         <span className="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">
-                          Active Directive • Step {del.order_index}
+                          Active Directive • Step {del?.order_index || 1}
                         </span>
                         <span className="text-[10px] text-gray-400 font-medium">
-                          Directive: <strong>{currentSelectedTask.title}</strong>
+                          Directive: <strong>{currentSelectedTask?.title || 'Active Directive'}</strong>
                         </span>
                       </div>
                       <p className="text-xs sm:text-sm text-gray-800 dark:text-gray-200 font-medium leading-relaxed">
-                        {del.task_description}
+                        {del?.task_description}
                       </p>
                     </div>
 
@@ -2575,9 +2667,9 @@ export function DashboardPage() {
                     {isBlocked && (
                       <div className="p-8 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-center space-y-3">
                         <Lock size={32} className="mx-auto text-amber-500" />
-                        <h4 className="text-base font-bold text-gray-900 dark:text-white">Step {del.order_index} is Blocked by Upstream Dependencies</h4>
+                        <h4 className="text-base font-bold text-gray-900 dark:text-white">Step {del?.order_index} is Blocked by Upstream Dependencies</h4>
                         <p className="text-xs text-gray-500 dark:text-gray-400 max-w-md mx-auto">
-                          Requires prior dependency ({JSON.parse(del.dependencies || '[]').join(', ') || 'Previous Agent'}) to be completed and approved before this workspace unlocks.
+                          Requires prior dependency ({JSON.parse(del?.dependencies || '[]').join(', ') || 'Previous Agent'}) to be completed and approved before this workspace unlocks.
                         </p>
                         <button
                           disabled
