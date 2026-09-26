@@ -11,7 +11,7 @@ import models
 from database import get_db
 
 # Secret key to encode the JWT token
-SECRET_KEY = os.getenv("SECRET_KEY", "a_very_secret_key_for_founder_os_development")
+SECRET_KEY = os.getenv("SECRET_KEY", "a_very_secret_key_for_agent_grid_development")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30 * 24 * 60 # 30 days
 

@@ -12,9 +12,14 @@ else:
     load_dotenv()
 
 
-# We will use a local SQLite DB if POSTGRES_URL isn't provided to prevent crashes if postgres isn't running yet,
-# but the user requested PostgreSQL.
-SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./founderos.db")
+default_db = "sqlite:///./agentgrid.db"
+if not os.getenv("DATABASE_URL"):
+    if os.path.exists(os.path.join(os.path.dirname(__file__), "agentgrid.db")):
+        default_db = "sqlite:///./agentgrid.db"
+    elif os.path.exists(os.path.join(os.path.dirname(__file__), "founderos.db")):
+        default_db = "sqlite:///./founderos.db"
+
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", default_db)
 
 connect_args = {"check_same_thread": False} if SQLALCHEMY_DATABASE_URL.startswith("sqlite") else {}
 engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args=connect_args)

@@ -657,9 +657,9 @@ class CEOOrchestrator:
         action_result = {}
 
         if action_id == "publish_linkedin":
-            action_result = MockSocialAdapter.publish_linkedin("Published via FounderOS Agent")
+            action_result = MockSocialAdapter.publish_linkedin("Published via AgentGrid Agent")
         elif action_id == "publish_telegram":
-            action_result = MockSocialAdapter.publish_telegram("Broadcasted via FounderOS Agent")
+            action_result = MockSocialAdapter.publish_telegram("Broadcasted via AgentGrid Agent")
         elif action_id in ["send_offer_letter", "approve_send_offer"]:
             cand_name = payload.get("candidate_name", "Candidate")
             doc_id = payload.get("document_id", "DOC-001")

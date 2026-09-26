@@ -14,7 +14,7 @@ import auth
 # Create all tables (in a real app you'd use Alembic)
 models.Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="FounderOS API")
+app = FastAPI(title="AgentGrid API")
 
 # Configure CORS for frontend access
 app.add_middleware(
@@ -320,7 +320,7 @@ async def serve_root():
         index_file = os.path.join(dist, "index.html")
         if os.path.exists(index_file):
             return FileResponse(index_file, media_type="text/html")
-    return HTMLResponse("<h2>FounderOS Backend is Online</h2><p>Frontend static build not found.</p>")
+    return HTMLResponse("<h2>AgentGrid Backend is Online</h2><p>Frontend static build not found.</p>")
 
 @app.get("/{full_path:path}")
 async def serve_spa_and_assets(full_path: str):
@@ -344,7 +344,7 @@ async def serve_spa_and_assets(full_path: str):
         if os.path.exists(index_file):
             return FileResponse(index_file, media_type="text/html")
 
-    return HTMLResponse("<h2>FounderOS Backend is Online</h2><p>Frontend dist directory not found.</p>")
+    return HTMLResponse("<h2>AgentGrid Backend is Online</h2><p>Frontend dist directory not found.</p>")
 
 if __name__ == "__main__":
     import uvicorn

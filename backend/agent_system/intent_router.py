@@ -21,7 +21,7 @@ class IntentRouter:
         # 1. Attempt LLM classification
         if self.gemini.is_configured():
             llm_prompt = f"""
-You are the master routing engine for FounderOS.
+You are the master routing engine for AgentGrid.
 Analyze the following founder request and classify it into EXACTLY ONE primary agent domain from:
 - CEO (High-level strategy, multi-agent task planning, resource allocation, executive roadmaps)
 - HIRING (Job descriptions, talent sourcing, candidate screening, interview question guides)
